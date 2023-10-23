@@ -18,37 +18,37 @@ export class AppController {
 
   @Get()
   homepage(): any {
-    return { message: 'success' };
+    return 'welcome to homepage';
   }
 
-  @Post('auth')
+  @Post('auth/google')
   @Redirect('', 302)
   async initiateGoogleOAuth(@Req() req, @Res() res): Promise<any> {
     try {
       const oauthUrl = this.appService.getGoogleOAuthUrl();
       console.log('Link', oauthUrl);
 
-      return { url: oauthUrl };
+      return 'success';
     } catch (error) {
       console.error('Error initiating OAuth:', error);
-      return res.redirect('/');
+      throw error;
     }
   }
 
-  @Get('auth/callback')
+  @Get('auth/google/callback')
   async handleGoogleOAuthCallback(@Req() req, @Res() res) {
     const { code } = req.query;
 
     try {
-      await this.appService.authenticateGoogle(code);
-      return res.redirect('/');
+      const { tokens } = await this.appService.authenticateGoogle(code);
+      return res.json({ tokens });
     } catch (error) {
       console.error('Error handling callback:', error);
-      return res.redirect('/');
+      throw error;
     }
   }
 
-  // get specific spreadsheet
+  // get spreadsheet by id
   @Get('spreadSheet')
   async getSheetData(
     @Headers() headers,

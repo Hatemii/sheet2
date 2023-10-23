@@ -30,9 +30,9 @@ export class AppService {
   async authenticateGoogle(code: string) {
     try {
       const { tokens } = await this.oAuth2Client.getToken(code);
-      console.log('tokens', tokens);
-
       this.oAuth2Client.setCredentials(tokens);
+
+      return { tokens: tokens };
     } catch (error) {
       console.error('Error exchanging authorization code for tokens:', error);
       throw error;
@@ -40,10 +40,11 @@ export class AppService {
   }
 
   // get specific spreadsheet
+  // all data A1:Z1000
   async getSheetData(
     accessToken: string,
     spreadsheetId: string,
-    range?: string,
+    range = 'A1:Z1000',
   ) {
     const response = await this.sheets.spreadsheets.values.get({
       headers: {
